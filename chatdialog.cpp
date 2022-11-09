@@ -1,53 +1,3 @@
-/****************************************************************************
-**
-** Copyright (C) 2016 The Qt Company Ltd.
-** Contact: https://www.qt.io/licensing/
-**
-** This file is part of the examples of the Qt Toolkit.
-**
-** $QT_BEGIN_LICENSE:BSD$
-** Commercial License Usage
-** Licensees holding valid commercial Qt licenses may use this file in
-** accordance with the commercial license agreement provided with the
-** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and The Qt Company. For licensing terms
-** and conditions see https://www.qt.io/terms-conditions. For further
-** information use the contact form at https://www.qt.io/contact-us.
-**
-** BSD License Usage
-** Alternatively, you may use this file under the terms of the BSD license
-** as follows:
-**
-** "Redistribution and use in source and binary forms, with or without
-** modification, are permitted provided that the following conditions are
-** met:
-**   * Redistributions of source code must retain the above copyright
-**     notice, this list of conditions and the following disclaimer.
-**   * Redistributions in binary form must reproduce the above copyright
-**     notice, this list of conditions and the following disclaimer in
-**     the documentation and/or other materials provided with the
-**     distribution.
-**   * Neither the name of The Qt Company Ltd nor the names of its
-**     contributors may be used to endorse or promote products derived
-**     from this software without specific prior written permission.
-**
-**
-** THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-** "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-** LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-** A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-** OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-** SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-** LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-** DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-** THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-** (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
-**
-** $QT_END_LICENSE$
-**
-****************************************************************************/
-
 #include <QtWidgets>
 
 #include "chatdialog.h"
@@ -63,7 +13,6 @@ ChatDialog::ChatDialog(QWidget *parent)
     listWidget->setFocusPolicy(Qt::NoFocus);
 
     connect(lineEdit, SIGNAL(returnPressed()), this, SLOT(returnPressed()));
-    connect(lineEdit, SIGNAL(returnPressed()), this, SLOT(returnPressed()));
     connect(&client, SIGNAL(newMessage(QString,QString)),
             this, SLOT(appendMessage(QString,QString)));
     connect(&client, SIGNAL(newParticipant(QString)),
@@ -74,13 +23,11 @@ ChatDialog::ChatDialog(QWidget *parent)
     myNickName = client.nickName();
     newParticipant(myNickName);
     tableFormat.setBorder(0);
-    QTimer::singleShot(10 * 1000, this, SLOT(showInformation()));
     readSocket.bind(QHostAddress::LocalHost, 5824);
     connect(&readSocket, SIGNAL(readyRead()), this, SLOT(readData()));
 
     if (!tripServer.listen(QHostAddress::LocalHost, 9090)) {
-        qDebug() << "Failed to bind to port";// << std::endl;
-        //        return 1;
+        qDebug() << "Failed to bind to port";
     }
 
     connect(&tripServer, SIGNAL(incomingText(QString)), this, SLOT(getText(QString)));
@@ -90,9 +37,6 @@ ChatDialog::ChatDialog(QWidget *parent)
 
 void ChatDialog::appendMessage(const QString &from, const QString &message)
 {
-    //        if (from.isEmpty() || message.isEmpty())
-    //            return;
-
     if (message == "ok")
         tripServer.sendMessage();
 
@@ -154,16 +98,6 @@ void ChatDialog::participantLeft(const QString &nick)
     textEdit->setTextColor(color);
 }
 
-void ChatDialog::showInformation()
-{
-    if (listWidget->count() == 1) {
-        QMessageBox::information(this, tr("Chat"),
-                                 tr("Launch several instances of this "
-                                    "program on your local network and "
-                                    "start chatting!"));
-    }
-}
-
 void ChatDialog::readData()
 {
     QByteArray datagram;
@@ -179,9 +113,6 @@ void ChatDialog::readData()
 
     client.sendMessage(data);
     appendMessage("", data);
-    //ui->textEdit->append(m_data + "\n");
-    //writeData();
-    //sendData();
 }
 
 void ChatDialog::getText(QString text)
@@ -192,8 +123,6 @@ void ChatDialog::getText(QString text)
 
 void ChatDialog::clipBoardChanged(QClipboard::Mode mode)
 {
-//    if (mode == QClipboard::Clipboard) {
         appendMessage("", clipBoard->text());
         client.sendMessage(clipBoard->text());
-//    }
 }
