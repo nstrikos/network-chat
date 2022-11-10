@@ -2,6 +2,7 @@ HEADERS       = chatdialog.h \
                 client.h \
                 clientsocket.h \
                 connection.h \
+                mainwindow.h \
                 mythread.h \
                 peermanager.h \
                 server.h \
@@ -11,11 +12,13 @@ SOURCES       = chatdialog.cpp \
                 clientsocket.cpp \
                 connection.cpp \
                 main.cpp \
+                mainwindow.cpp \
                 mythread.cpp \
                 peermanager.cpp \
                 server.cpp \
                 tripserver.cpp
-FORMS         = chatdialog.ui
+FORMS         = chatdialog.ui \
+    mainwindow.ui
 QT           += network widgets
 requires(qtConfig(udpsocket))
 requires(qtConfig(listwidget))

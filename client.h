@@ -15,10 +15,11 @@ class Client : public QObject
 
 public:
     Client();
-
-    void sendMessage(const QString &message);
     QString nickName() const;
     bool hasConnection(const QHostAddress &senderIp, int senderPort = -1) const;
+
+public slots:
+    void sendMessage(const QString &message);
 
 signals:
     void newMessage(const QString &from, const QString &message);
