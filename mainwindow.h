@@ -27,18 +27,15 @@ signals:
     void sendText(QString text);
 
 private slots:
-    void on_pushButton_clicked();
-
-    void on_textEdit_2_textChanged();
-
-    void on_textEdit_textChanged();
-
-    void on_pushButton_2_clicked();
-
+    void historyEditChanged();
+    void talkButtonClicked();
+    void clearButtonClicked();
+    void textEditChanged();
 
 private:
     Ui::MainWindow *ui;
     unsigned int peers;
+    bool connected;
 
     void activate();
 

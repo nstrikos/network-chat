@@ -87,11 +87,10 @@ void MainWindow::textEditChanged()
 
 void MainWindow::checkButton()
 {
-    if (ui->textEdit->document()->toPlainText() != "" && connected)
-        ui->talkButton->setEnabled(true);
-
-    if (ui->historyEdit->document()->toPlainText() != "")
-        ui->talkButton->setEnabled(true);
+    if (ui->textEdit->document()->toPlainText() != )
+        ui->clearButton->setEnabled(true);
+    else
+        ui->talkButton->setEnabled(false);
 
     if (connected)
         statusBar()->showMessage("Connected");
