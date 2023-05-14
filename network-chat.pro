@@ -2,6 +2,7 @@ HEADERS       = chatdialog.h \
                 client.h \
                 clientsocket.h \
                 connection.h \
+                hotKeyThread.h \
                 mainwindow.h \
                 mythread.h \
                 peermanager.h \
@@ -11,6 +12,7 @@ SOURCES       = chatdialog.cpp \
                 client.cpp \
                 clientsocket.cpp \
                 connection.cpp \
+                hotKeyThread.cpp \
                 main.cpp \
                 mainwindow.cpp \
                 mythread.cpp \
@@ -26,5 +28,7 @@ requires(qtConfig(listwidget))
 # install
 target.path = $$[QT_INSTALL_EXAMPLES]/network/network-chat
 INSTALLS += target
+LIBS += -lX11
+
 
 

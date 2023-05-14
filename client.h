@@ -25,6 +25,8 @@ signals:
     void newMessage(const QString &from, const QString &message);
     void newParticipant(const QString &nick);
     void participantLeft(const QString &nick);
+    void clientConnected();
+    void clientDisconnected();
 
 private slots:
     void newConnection(Connection *connection);

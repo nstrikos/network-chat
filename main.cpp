@@ -17,8 +17,8 @@ int main(int argc, char *argv[])
     Client client;
 
     QObject::connect(&mainWindow, &MainWindow::sendText, &client, &Client::sendMessage);
-    QObject::connect(&client, &Client::newParticipant, &mainWindow, &MainWindow::newParticipant);
-    QObject::connect(&client, &Client::participantLeft, &mainWindow, &MainWindow::participantLeft);
+    QObject::connect(&client, &Client::clientConnected, &mainWindow, &MainWindow::clientConnected);
+    QObject::connect(&client, &Client::clientDisconnected, &mainWindow, &MainWindow::clientDisconnected);
 
     return app.exec();
 }

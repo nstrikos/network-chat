@@ -2,7 +2,7 @@
 #include <QDataStream>
 #include <QDate>
 #include <QTime>
-#include <QTextCodec>
+//#include <QTextCodec>
 
 ClientSocket::ClientSocket(QObject *parent)
     : QTcpSocket(parent)

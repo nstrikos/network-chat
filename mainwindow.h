@@ -3,6 +3,9 @@
 
 #include <QMainWindow>
 #include <QAction>
+#include <QSystemTrayIcon>
+#include <QMenu>
+#include "hotKeyThread.h"
 
 namespace Ui {
 class MainWindow;
@@ -16,12 +19,15 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+protected:
+    void closeEvent(QCloseEvent *event) override;
+
 public slots:
-    void newParticipant(QString text);
-    void participantLeft(QString text);
+    void clientConnected();
+    void clientDisconnected();
 
 protected:
-    bool eventFilter(QObject *object, QEvent *event);
+    bool eventFilter(QObject *object, QEvent *event) override;
 
 signals:
     void sendText(QString text);
@@ -31,15 +37,21 @@ private slots:
     void talkButtonClicked();
     void clearButtonClicked();
     void textEditChanged();
+    void showWindow();
 
 private:
     Ui::MainWindow *ui;
-    unsigned int peers;
     bool connected;
+    QSystemTrayIcon *trayIcon;
+    QAction *quitAction;
+    QMenu *trayIconMenu;
 
     void activate();
-
     void checkButton();
+    void enableControls();
+    void disableControls();
+
+    HotKeyThread *hotKeyThread;
 };
 
 #endif // MAINWINDOW_H

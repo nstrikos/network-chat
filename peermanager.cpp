@@ -53,6 +53,11 @@ void PeerManager::startBroadcasting()
     broadcastTimer.start();
 }
 
+void PeerManager::stopBroadCasting()
+{
+    broadcastTimer.stop();
+}
+
 bool PeerManager::isLocalHostAddress(const QHostAddress &address)
 {
     foreach (QHostAddress localAddress, ipAddresses) {

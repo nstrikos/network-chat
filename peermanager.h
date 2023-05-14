@@ -20,6 +20,7 @@ public:
     void setServerPort(int port);
     QString userName() const;
     void startBroadcasting();
+    void stopBroadCasting();
     bool isLocalHostAddress(const QHostAddress &address);
 
 signals:

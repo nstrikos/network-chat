@@ -3,17 +3,17 @@
 
 #include <QDebug>
 #include <QKeyEvent>
+#include <QMessageBox>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    ui->talkButton->setEnabled(false);
-    ui->clearButton->setEnabled(false);
-    peers = 0;
     connected = false;
-    statusBar()->showMessage("Not connected");
+    disableControls();
+
+    ui->clearButton->setEnabled(false);
 
     ui->textEdit->installEventFilter(this);
 
@@ -21,28 +21,61 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->textEdit, &QTextEdit::textChanged, this, &MainWindow::textEditChanged);
     connect(ui->talkButton, &QPushButton::clicked, this, &MainWindow::talkButtonClicked);
     connect(ui->clearButton, &QPushButton::clicked, this, &MainWindow::clearButtonClicked);
+
+    trayIcon = new QSystemTrayIcon(this);
+    trayIcon->show();
+
+    connect(trayIcon, &QSystemTrayIcon::activated, this, &MainWindow::showWindow);
+
+    quitAction = new QAction(tr("&Quit"), this);
+    connect(quitAction, &QAction::triggered, qApp, &QCoreApplication::quit);
+
+    trayIconMenu = new QMenu(this);
+    trayIconMenu->addAction(quitAction);
+    trayIcon->setContextMenu(trayIconMenu);
+
+    hotKeyThread = new HotKeyThread();
+    //connect(hotKeyThread, SIGNAL(finished()), hotKeyThread, SLOT(deleteLater()));
+    hotKeyThread->start();
 }
 
 MainWindow::~MainWindow()
 {
+    hotKeyThread->setStopped(true);
+    hotKeyThread->terminate();
+    hotKeyThread->wait();
+    delete hotKeyThread;
+    delete quitAction;
+    delete trayIconMenu;
+    delete trayIcon;
     delete ui;
 }
 
-void MainWindow::newParticipant(QString text)
+void MainWindow::closeEvent(QCloseEvent *event)
 {
-    peers++;
-    connected = true;
-    qDebug()<< text << ": connected";
-    checkButton();
+    if (!event->spontaneous() || !isVisible())
+        return;
+    if (trayIcon->isVisible()) {
+        QMessageBox::information(this, tr("Systray"),
+                                 tr("The program will keep running in the "
+                                    "system tray. To terminate the program, "
+                                    "choose <b>Quit</b> in the context menu "
+                                    "of the system tray entry."));
+        hide();
+        event->ignore();
+    }
 }
 
-void MainWindow::participantLeft(QString text)
+void MainWindow::clientConnected()
 {
-    peers--;
-    if (peers <= 0)
-        connected = false;
-    qDebug() << text << ": disconnected";
-    checkButton();
+    connected = true;
+    enableControls();
+}
+
+void MainWindow::clientDisconnected()
+{
+    connected = false;
+    disableControls();
 }
 
 bool MainWindow::eventFilter(QObject *object, QEvent *event)
@@ -85,18 +118,32 @@ void MainWindow::textEditChanged()
     checkButton();
 }
 
+void MainWindow::showWindow()
+{
+    this->show();
+}
+
 void MainWindow::checkButton()
 {
-    if (ui->textEdit->document()->toPlainText() != "" && connected)
-        ui->talkButton->setEnabled(true);
+    if (!connected)
+        return;
 
-    if (ui->historyEdit->document()->toPlainText() != "")
+    if (ui->textEdit->document()->toPlainText() != "")
         ui->talkButton->setEnabled(true);
+}
 
-    if (connected)
-        statusBar()->showMessage("Connected");
-    else
-        statusBar()->showMessage("Not connected");
+void MainWindow::enableControls()
+{
+    statusBar()->showMessage("Connected");
+    ui->textEdit->setEnabled(true);
+    ui->textEdit->setFocus();
+}
+
+void MainWindow::disableControls()
+{
+    ui->textEdit->setEnabled(false);
+    ui->talkButton->setEnabled(false);
+    statusBar()->showMessage("Not connected");
 }
 
 void MainWindow::activate()
@@ -107,10 +154,12 @@ void MainWindow::activate()
     QString text = ui->textEdit->document()->toPlainText();
     emit sendText(text);
     ui->textEdit->clear();
+    ui->talkButton->setEnabled(false);
 
     QTextCursor cursor = QTextCursor(ui->historyEdit->document());
     cursor.setPosition(0);
     ui->historyEdit->setTextCursor(cursor);
     ui->historyEdit->insertPlainText(text + "\n");
-}
 
+    ui->textEdit->setFocus();
+}
