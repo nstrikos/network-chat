@@ -2,6 +2,7 @@ HEADERS       = chatdialog.h \
                 client.h \
                 clientsocket.h \
                 connection.h \
+                hotKey.h \
                 hotKeyThread.h \
                 mainwindow.h \
                 mythread.h \
@@ -12,6 +13,7 @@ SOURCES       = chatdialog.cpp \
                 client.cpp \
                 clientsocket.cpp \
                 connection.cpp \
+                hotKey.cpp \
                 hotKeyThread.cpp \
                 main.cpp \
                 mainwindow.cpp \

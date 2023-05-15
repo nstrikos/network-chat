@@ -2,6 +2,7 @@
 #define HOTKEYTHREAD_H
 
 #include <QThread>
+#include "hotKey.h"
 
 class HotKeyThread : public QThread
 {
@@ -16,6 +17,7 @@ protected:
 
 private:
     volatile bool stopped;
+    QVector<HotKey> hotKeys;
 
 signals:
     void playPressed();
