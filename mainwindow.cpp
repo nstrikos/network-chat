@@ -63,6 +63,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
                                     "of the system tray entry."));
         hide();
         event->ignore();
+        hotKeyThread->setStopped(true);
     }
 }
 
@@ -121,6 +122,9 @@ void MainWindow::textEditChanged()
 void MainWindow::showWindow()
 {
     this->show();
+    delete hotKeyThread;
+    hotKeyThread = new HotKeyThread();
+    hotKeyThread->start();
 }
 
 void MainWindow::checkButton()
@@ -152,7 +156,7 @@ void MainWindow::activate()
         return;
 
     QString text = ui->textEdit->document()->toPlainText();
-    emit sendText(text);
+    emit sendText(text);    
     ui->textEdit->clear();
     ui->talkButton->setEnabled(false);
 
