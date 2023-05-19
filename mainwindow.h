@@ -6,6 +6,7 @@
 #include <QSystemTrayIcon>
 #include <QMenu>
 #include "hotKeyThread.h"
+#include "shortcutWidget.h"
 
 namespace Ui {
 class MainWindow;
@@ -41,6 +42,9 @@ private slots:
     void textEditChanged();
     void showWindow();
 
+    void showShortcutDialog();
+    void updateKeys(QVector<HotKey*>hotkeys);
+
 private:
     Ui::MainWindow *ui;
     bool connected;
@@ -54,6 +58,11 @@ private:
     void disableControls();
 
     HotKeyThread *hotKeyThread;
+    ShortcutWidget *shortcutWindow;
+
+    QAction* showShortcutAction;
+
+    void createMenu();
 };
 
 #endif // MAINWINDOW_H

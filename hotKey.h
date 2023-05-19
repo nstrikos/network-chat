@@ -17,11 +17,11 @@ public:
     int keychar2;
     unsigned int modifiers;
     QString phrase;
-
-private:
-    QString code;
     unsigned int alt;
     unsigned int ctrl;
+    QString code;
+
+private:
     void updateKeyCode();
     void updateModifiers();
     MainWindow *mainWindow;

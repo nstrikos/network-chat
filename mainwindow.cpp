@@ -39,8 +39,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
     tempKey.setCode("8");
-    tempKey.setCtrl(false);
-    tempKey.setAlt(true);
+    tempKey.setCtrl(true);
+    tempKey.setAlt(false);
     tempKey.phrase = "ok let's do it";
     hotKeys.append(tempKey);
 
@@ -48,6 +48,10 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(hotKeyThread, &HotKeyThread::sendText, this, &MainWindow::receiveShortCut);
 
     hotKeyThread->start();
+
+    shortcutWindow = nullptr;
+
+    createMenu();
 }
 
 void MainWindow::shortcutActivated(QString text)
@@ -61,6 +65,11 @@ void MainWindow::shortcutActivated(QString text)
 
 MainWindow::~MainWindow()
 {
+    if (shortcutWindow != nullptr)
+        delete shortcutWindow;
+
+    delete showShortcutAction;
+
     hotKeyThread->terminate();
     hotKeyThread->wait();
     delete hotKeyThread;
@@ -150,6 +159,57 @@ void MainWindow::showWindow()
     this->show();    
 }
 
+void MainWindow::showShortcutDialog()
+{
+    if (shortcutWindow == nullptr) {
+        shortcutWindow = new ShortcutWidget();
+        connect(shortcutWindow, &ShortcutWidget::updateKeys, this, &MainWindow::updateKeys);
+    }
+
+    shortcutWindow->show();
+}
+
+void MainWindow::updateKeys(QVector<HotKey *>hotkeys)
+{
+
+
+
+    if (hotKeyThread != nullptr) {
+        hotKeyThread->setStopped(true);
+        //hotKeyThread->terminate();
+        //hotKeyThread->wait();
+        //delete hotKeyThread;
+    }
+
+
+    HotKey tempKey;
+    QVector<HotKey>hotKeys;
+
+
+//    tempKey.setCode("8");
+//    tempKey.setCtrl(false);
+//    tempKey.setAlt(true);
+//    tempKey.phrase = "ok let's do it";
+//    hotKeys.append(tempKey);
+
+    for (int i = 0; i < hotkeys.size(); i++) {
+        qDebug() << hotkeys.at(i)->code;
+            tempKey.setCode(hotkeys.at(i)->code);
+            tempKey.setCtrl(hotkeys.at(i)->ctrl);
+            tempKey.setAlt(hotkeys.at(i)->alt);
+            tempKey.phrase = hotkeys.at(i)->phrase;
+            hotKeys.append(tempKey);
+    }
+
+    hotKeyThread->setKeys(hotKeys);
+
+
+    //        hotKeyThread = new HotKeyThread(hotKeys);
+    //        connect(hotKeyThread, &HotKeyThread::sendText, this, &MainWindow::receiveShortCut);
+
+    hotKeyThread->start();
+}
+
 void MainWindow::checkButton()
 {
     if (!connected)
@@ -171,6 +231,17 @@ void MainWindow::disableControls()
     ui->textEdit->setEnabled(false);
     ui->talkButton->setEnabled(false);
     statusBar()->showMessage("Not connected");
+}
+
+void MainWindow::createMenu()
+{
+    showShortcutAction = new QAction(tr("Edit shortcuts..."), this);
+
+
+    connect(showShortcutAction, &QAction::triggered, this, &MainWindow::showShortcutDialog);
+
+    QMenu* fileMenu = menuBar()->addMenu(tr("Shortcuts"));
+    fileMenu->addAction(showShortcutAction);
 }
 
 void MainWindow::activate()

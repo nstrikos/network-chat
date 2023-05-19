@@ -5,9 +5,13 @@ HEADERS       = chatdialog.h \
                 hotKey.h \
                 hotKeyThread.h \
                 mainwindow.h \
+                myCombobox.h \
                 mythread.h \
                 peermanager.h \
                 server.h \
+                shortcutDialog.h \
+                shortcutWidget.h \
+                shortcutWindow.h \
                 tripserver.h
 SOURCES       = chatdialog.cpp \
                 client.cpp \
@@ -17,12 +21,19 @@ SOURCES       = chatdialog.cpp \
                 hotKeyThread.cpp \
                 main.cpp \
                 mainwindow.cpp \
+                myCombobox.cpp \
                 mythread.cpp \
                 peermanager.cpp \
                 server.cpp \
+                shortcutDialog.cpp \
+                shortcutWidget.cpp \
+                shortcutWindow.cpp \
                 tripserver.cpp
 FORMS         = chatdialog.ui \
-    mainwindow.ui
+    mainwindow.ui \
+    shortcutDialog.ui \
+    shortcutWidget.ui \
+    shortcutWindow.ui
 QT           += network widgets
 requires(qtConfig(udpsocket))
 requires(qtConfig(listwidget))
