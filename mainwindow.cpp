@@ -34,14 +34,33 @@ MainWindow::MainWindow(QWidget *parent) :
     trayIconMenu->addAction(quitAction);
     trayIcon->setContextMenu(trayIconMenu);
 
-    hotKeyThread = new HotKeyThread();
-    //connect(hotKeyThread, SIGNAL(finished()), hotKeyThread, SLOT(deleteLater()));
+    HotKey tempKey;
+    QVector<HotKey>hotKeys;
+
+
+    tempKey.setCode("8");
+    tempKey.setCtrl(false);
+    tempKey.setAlt(true);
+    tempKey.phrase = "ok let's do it";
+    hotKeys.append(tempKey);
+
+    hotKeyThread = new HotKeyThread(hotKeys);
+    connect(hotKeyThread, &HotKeyThread::sendText, this, &MainWindow::receiveShortCut);
+
     hotKeyThread->start();
+}
+
+void MainWindow::shortcutActivated(QString text)
+{
+    qDebug() << "Got here!";
+    //    if (!connected)
+    //        return;
+    ui->textEdit->setText(text);
+    activate();
 }
 
 MainWindow::~MainWindow()
 {
-    hotKeyThread->setStopped(true);
     hotKeyThread->terminate();
     hotKeyThread->wait();
     delete hotKeyThread;
@@ -63,7 +82,6 @@ void MainWindow::closeEvent(QCloseEvent *event)
                                     "of the system tray entry."));
         hide();
         event->ignore();
-        hotKeyThread->setStopped(true);
     }
 }
 
@@ -77,6 +95,14 @@ void MainWindow::clientDisconnected()
 {
     connected = false;
     disableControls();
+}
+
+void MainWindow::receiveShortCut(QString text)
+{
+    if (!connected)
+        return;
+    ui->textEdit->setText(text);
+    activate();
 }
 
 bool MainWindow::eventFilter(QObject *object, QEvent *event)
@@ -121,10 +147,7 @@ void MainWindow::textEditChanged()
 
 void MainWindow::showWindow()
 {
-    this->show();
-    delete hotKeyThread;
-    hotKeyThread = new HotKeyThread();
-    hotKeyThread->start();
+    this->show();    
 }
 
 void MainWindow::checkButton()
@@ -166,4 +189,61 @@ void MainWindow::activate()
     ui->historyEdit->insertPlainText(text + "\n");
 
     ui->textEdit->setFocus();
+
+
+    if (text == "1") {
+        if (hotKeyThread != nullptr) {
+            hotKeyThread->setStopped(true);
+            //hotKeyThread->terminate();
+            //hotKeyThread->wait();
+            //delete hotKeyThread;
+        }
+
+
+        HotKey tempKey;
+        QVector<HotKey>hotKeys;
+
+
+        tempKey.setCode("8");
+        tempKey.setCtrl(false);
+        tempKey.setAlt(true);
+        tempKey.phrase = "ok let's do it";
+        hotKeys.append(tempKey);
+
+        hotKeyThread->setKeys(hotKeys);
+
+
+        //        hotKeyThread = new HotKeyThread(hotKeys);
+        //        connect(hotKeyThread, &HotKeyThread::sendText, this, &MainWindow::receiveShortCut);
+
+        hotKeyThread->start();
+
+    } else if (text == "2") {
+
+        if (hotKeyThread != nullptr) {
+            hotKeyThread->setStopped(true);
+            //            hotKeyThread->terminate();
+            //            hotKeyThread->wait();
+            //            delete hotKeyThread;
+        }
+
+
+        HotKey tempKey;
+        QVector<HotKey>hotKeys;
+
+
+        tempKey.setCode("9");
+        tempKey.setCtrl(true);
+        tempKey.setAlt(false);
+        tempKey.phrase = "ok";
+
+        hotKeys.append(tempKey);
+        //        hotKeyThread = new HotKeyThread(hotKeys);
+
+        //        connect(hotKeyThread, &HotKeyThread::sendText, this, &MainWindow::receiveShortCut);
+
+        hotKeyThread->setKeys(hotKeys);
+
+        hotKeyThread->start();
+    }
 }

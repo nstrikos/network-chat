@@ -17,6 +17,7 @@ class MainWindow : public QMainWindow
 
 public:
     explicit MainWindow(QWidget *parent = nullptr);
+    void shortcutActivated(QString text);
     ~MainWindow();
 
 protected:
@@ -25,6 +26,7 @@ protected:
 public slots:
     void clientConnected();
     void clientDisconnected();
+    void receiveShortCut(QString text);
 
 protected:
     bool eventFilter(QObject *object, QEvent *event) override;

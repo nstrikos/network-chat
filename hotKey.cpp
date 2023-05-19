@@ -1,5 +1,7 @@
 #include "hotKey.h"
 
+#include "mainwindow.h"
+
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 
@@ -116,6 +118,36 @@ void HotKey::updateKeyCode()
     } else if (code == "Z") {
         keychar = XK_Z;
         keychar2 = XK_z;
+    } else if (code == "0") {
+        keychar = XK_0;
+        keychar2 = XK_0;
+    } else if (code == "1") {
+        keychar = XK_1;
+        keychar2 = XK_1;
+    } else if (code == "2") {
+        keychar = XK_2;
+        keychar2 = XK_2;
+    } else if (code == "3") {
+        keychar = XK_3;
+        keychar2 = XK_3;
+    } else if (code == "4") {
+        keychar = XK_4;
+        keychar2 = XK_4;
+    } else if (code == "5") {
+        keychar = XK_5;
+        keychar2 = XK_5;
+    } else if (code == "6") {
+        keychar = XK_6;
+        keychar2 = XK_6;
+    } else if (code == "7") {
+        keychar = XK_7;
+        keychar2 = XK_7;
+    } else if (code == "8") {
+        keychar = XK_8;
+        keychar2 = XK_8;
+    } else if (code == "9") {
+        keychar = XK_9;
+        keychar2 = XK_9;
     } else if (code == "F1") {
         keychar = XK_F1;
         keychar2 = XK_F1;

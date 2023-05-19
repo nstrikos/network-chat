@@ -8,22 +8,20 @@ class HotKeyThread : public QThread
 {
     Q_OBJECT
 public:
-    HotKeyThread();
-    void stop();
+    HotKeyThread(QVector<HotKey> keys);
+    ~HotKeyThread();
     void setStopped(bool stopped);
+    void setKeys(QVector<HotKey> keys);
+
+signals:
+    void sendText(QString text);
 
 protected:
     void run();
 
-private:
-    volatile bool stopped;
+private:    
     QVector<HotKey> hotKeys;
-
-signals:
-    void playPressed();
-    void stopPressed();
-    void showWindowPressed();
-    void pausePressed();
+    bool stopped = false;
 };
 
 #endif // HOTKEYTHREAD_H

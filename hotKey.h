@@ -3,6 +3,8 @@
 
 #include <QString>
 
+class MainWindow;
+
 class HotKey
 {
 public:
@@ -14,6 +16,7 @@ public:
     int keychar;
     int keychar2;
     unsigned int modifiers;
+    QString phrase;
 
 private:
     QString code;
@@ -21,6 +24,7 @@ private:
     unsigned int ctrl;
     void updateKeyCode();
     void updateModifiers();
+    MainWindow *mainWindow;
 };
 
 #endif // HOTKEY_H

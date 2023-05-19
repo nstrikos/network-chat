@@ -5,37 +5,41 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 
-HotKeyThread::HotKeyThread()
+HotKeyThread::HotKeyThread(QVector<HotKey> keys)
 {
     qDebug() << "Registering hot keys...";
-    stopped = false;
-
-    HotKey tempKey;
-
-    tempKey.setCode("F11");
-    tempKey.setCtrl(true);
-    tempKey.setAlt(false);
-
-    hotKeys.append(tempKey);
-    qDebug() << tempKey.keycode << tempKey.modifiers;
+    hotKeys = keys;
 
     Display *dpy = XOpenDisplay(0);
+    Window root = DefaultRootWindow(dpy);
 
-    tempKey.keycode = XKeysymToKeycode(dpy, XK_B);
-    tempKey.modifiers = ControlMask;
-
-    hotKeys.append(tempKey);
-    qDebug() << tempKey.keycode << tempKey.modifiers;
-}
-
-void HotKeyThread::stop()
-{
-    stopped = true;
+    XUngrabKey(dpy, AnyKey, AnyModifier, root);
 }
 
 void HotKeyThread::setStopped(bool stopped)
 {
     this->stopped = stopped;
+    qDebug() << stopped;
+}
+
+void HotKeyThread::setKeys(QVector<HotKey> keys)
+{
+    hotKeys = keys;
+}
+
+HotKeyThread::~HotKeyThread()
+{
+    Display    *dpy     =  XOpenDisplay(0);
+    Window      root    = DefaultRootWindow(dpy);
+    Window          grab_window     = root;
+
+    for (int i = 0; i < hotKeys.size(); i++) {
+        XUngrabKey(dpy, hotKeys.at(i).keycode, hotKeys.at(i).modifiers, grab_window);
+        XUngrabKey(dpy, hotKeys.at(i).keycode, hotKeys.at(i).modifiers | LockMask, grab_window);
+        XUngrabKey(dpy, hotKeys.at(i).keycode, hotKeys.at(i).modifiers | Mod2Mask, grab_window);
+        XUngrabKey(dpy, hotKeys.at(i).keycode, hotKeys.at(i).modifiers | LockMask | Mod2Mask, grab_window);
+    }
+    qDebug() << "Got here!";
 }
 
 void HotKeyThread::run()
@@ -50,6 +54,8 @@ void HotKeyThread::run()
     Bool            owner_events    = False;
     int             pointer_mode    = GrabModeAsync;
     int             keyboard_mode   = GrabModeAsync;
+
+    stopped = false;
 
     for (int i = 0; i < hotKeys.size(); i++) {
         XGrabKey(dpy, hotKeys.at(i).keycode, hotKeys.at(i).modifiers, grab_window, owner_events,
@@ -69,35 +75,39 @@ void HotKeyThread::run()
     XSelectInput(dpy, root, KeyPressMask);
     while(!stopped)
     {
-        XNextEvent(dpy, &ev);
-        switch(ev.type)
-        {
-        case KeyPress:
-            XLookupString(&ev.xkey,text,255,&key,0);
-            qDebug() << key << XK_V;
+        if (XPending(dpy) > 0) {
 
-            for (int i = 0; i < hotKeys.size(); i++) {
-                if (key == hotKeys.at(i).keychar) {
-                    qDebug() << hotKeys.at(i).keychar << " pressed";
-                } else if ( key == hotKeys.at(i).keychar2) {
-                    qDebug() << hotKeys.at(i).keychar2 << " pressed";
+            XNextEvent(dpy, &ev);
+            switch(ev.type)
+            {
+            case KeyPress:
+                XLookupString(&ev.xkey,text,255,&key,0);
+                qDebug() << key << XK_V;
+
+                for (int i = 0; i < hotKeys.size(); i++) {
+                    if (key == hotKeys.at(i).keychar) {
+                        //hotKeys.at(i).speakPhrase();
+                        emit sendText(hotKeys.at(i).phrase);
+                        qDebug() << hotKeys.at(i).keychar << " pressed";
+                    } else if ( key == hotKeys.at(i).keychar2) {
+                        emit sendText(hotKeys.at(i).phrase);
+                        qDebug() << hotKeys.at(i).keychar2 << " pressed";
+                    }
                 }
             }
         }
     }
 
-    if (stopped)
-    {
-//        XUngrabKey(dpy,keycode,modifiers,grab_window);
-//        XUngrabKey(dpy,keycode2,modifiers,grab_window);
+    qDebug() << "exit loop";
 
-        for (int i = 0; i < hotKeys.size(); i++) {
-            XUngrabKey(dpy, hotKeys.at(i).keycode, hotKeys.at(i).modifiers, grab_window);
-            XUngrabKey(dpy, hotKeys.at(i).keycode, hotKeys.at(i).modifiers | LockMask, grab_window);
-            XUngrabKey(dpy, hotKeys.at(i).keycode, hotKeys.at(i).modifiers | Mod2Mask, grab_window);
-            XUngrabKey(dpy, hotKeys.at(i).keycode, hotKeys.at(i).modifiers | LockMask | Mod2Mask, grab_window);
-        }
+
+
+    for (int i = 0; i < hotKeys.size(); i++) {
+        XUngrabKey(dpy, hotKeys.at(i).keycode, hotKeys.at(i).modifiers, grab_window);
+        XUngrabKey(dpy, hotKeys.at(i).keycode, hotKeys.at(i).modifiers | LockMask, grab_window);
+        XUngrabKey(dpy, hotKeys.at(i).keycode, hotKeys.at(i).modifiers | Mod2Mask, grab_window);
+        XUngrabKey(dpy, hotKeys.at(i).keycode, hotKeys.at(i).modifiers | LockMask | Mod2Mask, grab_window);
     }
-    stopped = true;
+
     XCloseDisplay(dpy);
 }
