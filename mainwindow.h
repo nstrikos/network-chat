@@ -60,9 +60,13 @@ private:
     HotKeyThread *hotKeyThread;
     ShortcutWidget *shortcutWindow;
 
+    QMenu* fileMenu;
+
     QAction* showShortcutAction;
 
     void createMenu();
+
+    bool closeOnTrayIcon;
 };
 
 #endif // MAINWINDOW_H

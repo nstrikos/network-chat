@@ -1,7 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#include <QDebug>
 #include <QKeyEvent>
 #include <QMessageBox>
 
@@ -34,17 +33,7 @@ MainWindow::MainWindow(QWidget *parent) :
     trayIconMenu->addAction(quitAction);
     trayIcon->setContextMenu(trayIconMenu);
 
-    HotKey tempKey;
-    QVector<HotKey>hotKeys;
-
-
-    tempKey.setCode("8");
-    tempKey.setCtrl(true);
-    tempKey.setAlt(false);
-    tempKey.phrase = "ok let's do it";
-    hotKeys.append(tempKey);
-
-    hotKeyThread = new HotKeyThread(hotKeys);
+    hotKeyThread = new HotKeyThread();
     connect(hotKeyThread, &HotKeyThread::sendText, this, &MainWindow::receiveShortCut);
 
     hotKeyThread->start();
@@ -52,13 +41,12 @@ MainWindow::MainWindow(QWidget *parent) :
     shortcutWindow = nullptr;
 
     createMenu();
+
+    closeOnTrayIcon = false;
 }
 
 void MainWindow::shortcutActivated(QString text)
 {
-    qDebug() << "Got here!";
-    //    if (!connected)
-    //        return;
     ui->textEdit->setText(text);
     activate();
 }
@@ -76,21 +64,19 @@ MainWindow::~MainWindow()
     delete quitAction;
     delete trayIconMenu;
     delete trayIcon;
+    delete fileMenu;
     delete ui;
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    if (!event->spontaneous() || !isVisible())
-        return;
-    if (trayIcon->isVisible()) {
-        QMessageBox::information(this, tr("Systray"),
-                                 tr("The program will keep running in the "
-                                    "system tray. To terminate the program, "
-                                    "choose <b>Quit</b> in the context menu "
-                                    "of the system tray entry."));
-        hide();
-        event->ignore();
+    if (closeOnTrayIcon) {
+        if (!event->spontaneous() || !isVisible())
+            return;
+        if (trayIcon->isVisible()) {
+            hide();
+            event->ignore();
+        }
     }
 }
 
@@ -121,7 +107,6 @@ bool MainWindow::eventFilter(QObject *object, QEvent *event)
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
         if (keyEvent->key() == Qt::Key_Return) {
             // Special tab handling
-            qDebug("Enter Key Pressed...");
             activate();
             return true;
         } else {
@@ -162,7 +147,13 @@ void MainWindow::showWindow()
 void MainWindow::showShortcutDialog()
 {
     if (shortcutWindow == nullptr) {
+        Qt::WindowFlags flags;
+        flags = Qt::Dialog;
+        flags |= Qt::WindowTitleHint;
+        flags |= Qt::WindowCloseButtonHint;
+        flags |= Qt::CustomizeWindowHint;
         shortcutWindow = new ShortcutWidget();
+        shortcutWindow->setWindowFlags(flags);
         connect(shortcutWindow, &ShortcutWidget::updateKeys, this, &MainWindow::updateKeys);
     }
 
@@ -171,42 +162,23 @@ void MainWindow::showShortcutDialog()
 
 void MainWindow::updateKeys(QVector<HotKey *>hotkeys)
 {
-
-
-
     if (hotKeyThread != nullptr) {
         hotKeyThread->setStopped(true);
-        //hotKeyThread->terminate();
-        //hotKeyThread->wait();
-        //delete hotKeyThread;
     }
 
 
     HotKey tempKey;
     QVector<HotKey>hotKeys;
 
-
-//    tempKey.setCode("8");
-//    tempKey.setCtrl(false);
-//    tempKey.setAlt(true);
-//    tempKey.phrase = "ok let's do it";
-//    hotKeys.append(tempKey);
-
     for (int i = 0; i < hotkeys.size(); i++) {
-        qDebug() << hotkeys.at(i)->code;
-            tempKey.setCode(hotkeys.at(i)->code);
-            tempKey.setCtrl(hotkeys.at(i)->ctrl);
-            tempKey.setAlt(hotkeys.at(i)->alt);
-            tempKey.phrase = hotkeys.at(i)->phrase;
-            hotKeys.append(tempKey);
+        tempKey.setCode(hotkeys.at(i)->code);
+        tempKey.setCtrl(hotkeys.at(i)->ctrl);
+        tempKey.setAlt(hotkeys.at(i)->alt);
+        tempKey.phrase = hotkeys.at(i)->phrase;
+        hotKeys.append(tempKey);
     }
 
     hotKeyThread->setKeys(hotKeys);
-
-
-    //        hotKeyThread = new HotKeyThread(hotKeys);
-    //        connect(hotKeyThread, &HotKeyThread::sendText, this, &MainWindow::receiveShortCut);
-
     hotKeyThread->start();
 }
 
@@ -240,7 +212,7 @@ void MainWindow::createMenu()
 
     connect(showShortcutAction, &QAction::triggered, this, &MainWindow::showShortcutDialog);
 
-    QMenu* fileMenu = menuBar()->addMenu(tr("Shortcuts"));
+    fileMenu = menuBar()->addMenu(tr("Shortcuts"));
     fileMenu->addAction(showShortcutAction);
 }
 
@@ -259,62 +231,5 @@ void MainWindow::activate()
     ui->historyEdit->setTextCursor(cursor);
     ui->historyEdit->insertPlainText(text + "\n");
 
-    ui->textEdit->setFocus();
-
-
-    if (text == "1") {
-        if (hotKeyThread != nullptr) {
-            hotKeyThread->setStopped(true);
-            //hotKeyThread->terminate();
-            //hotKeyThread->wait();
-            //delete hotKeyThread;
-        }
-
-
-        HotKey tempKey;
-        QVector<HotKey>hotKeys;
-
-
-        tempKey.setCode("8");
-        tempKey.setCtrl(false);
-        tempKey.setAlt(true);
-        tempKey.phrase = "ok let's do it";
-        hotKeys.append(tempKey);
-
-        hotKeyThread->setKeys(hotKeys);
-
-
-        //        hotKeyThread = new HotKeyThread(hotKeys);
-        //        connect(hotKeyThread, &HotKeyThread::sendText, this, &MainWindow::receiveShortCut);
-
-        hotKeyThread->start();
-
-    } else if (text == "2") {
-
-        if (hotKeyThread != nullptr) {
-            hotKeyThread->setStopped(true);
-            //            hotKeyThread->terminate();
-            //            hotKeyThread->wait();
-            //            delete hotKeyThread;
-        }
-
-
-        HotKey tempKey;
-        QVector<HotKey>hotKeys;
-
-
-        tempKey.setCode("9");
-        tempKey.setCtrl(true);
-        tempKey.setAlt(false);
-        tempKey.phrase = "ok";
-
-        hotKeys.append(tempKey);
-        //        hotKeyThread = new HotKeyThread(hotKeys);
-
-        //        connect(hotKeyThread, &HotKeyThread::sendText, this, &MainWindow::receiveShortCut);
-
-        hotKeyThread->setKeys(hotKeys);
-
-        hotKeyThread->start();
-    }
+    ui->textEdit->setFocus();    
 }

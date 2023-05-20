@@ -5,10 +5,9 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 
-HotKeyThread::HotKeyThread(QVector<HotKey> keys)
+HotKeyThread::HotKeyThread()
 {
     qDebug() << "Registering hot keys...";
-    hotKeys = keys;
 
     Display *dpy = XOpenDisplay(0);
     Window root = DefaultRootWindow(dpy);

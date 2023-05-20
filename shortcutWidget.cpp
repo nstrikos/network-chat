@@ -1,11 +1,6 @@
 #include "shortcutWidget.h"
 #include "ui_shortcutWidget.h"
 
-#include <QHBoxLayout>
-#include <QLabel>
-#include <QPushButton>
-#include <QScrollArea>
-#include <QVBoxLayout>
 #include <QDebug>
 
 ShortcutWidget::ShortcutWidget(QWidget *parent) :
@@ -14,21 +9,23 @@ ShortcutWidget::ShortcutWidget(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    QScrollArea* scrollArea = new QScrollArea(this);
+    scrollArea = new QScrollArea(this);
     scrollArea->setWidgetResizable(true);
 
     // Create a widget to hold the layout
-    QWidget* contentWidget = new QWidget(scrollArea);
+    contentWidget = new QWidget(scrollArea);
 
     // Create a layout for the content widget
-    QVBoxLayout* contentLayout = new QVBoxLayout(contentWidget);
+    contentLayout = new QVBoxLayout(contentWidget);
 
     // Create and add labels dynamically
     for (int i = 1; i <= 100; ++i)
     {
         QHBoxLayout* innerLayout = new QHBoxLayout;
+        innerLayouts.append(innerLayout);
 
         QLabel* label = new QLabel(QString("Phrase %1").arg(i));
+        labels.append(label);
         innerLayout->addWidget(label);
 
         QLineEdit *lineEdit = new QLineEdit();
@@ -54,17 +51,38 @@ ShortcutWidget::ShortcutWidget(QWidget *parent) :
     scrollArea->setWidget(contentWidget);
 
     // Create a button
-    QPushButton* button = new QPushButton("OK", this);
+    button = new QPushButton("OK", this);
     connect(button, &QPushButton::pressed, this, &ShortcutWidget::okButtonPressed);
 
     // Create a layout for the main window
-    QVBoxLayout* mainLayout = new QVBoxLayout(this);
+    mainLayout = new QVBoxLayout(this);
     mainLayout->addWidget(scrollArea);
     mainLayout->addWidget(button);
 }
 
 ShortcutWidget::~ShortcutWidget()
 {
+    for (int i = 0; i < hotkeys.size(); i++) {
+        delete hotkeys.at(i);
+    }
+
+    for (int i = 0; i < innerLayouts.size(); i++)
+        delete innerLayouts.at(i);
+    for (int i = 0; i < labels.size(); i++)
+        delete labels.at(i);
+    for (int i = 0; i < lineEdits.size(); i++)
+        delete lineEdits.at(i);
+    for (int i = 0; i < comboboxes.size(); i++)
+        delete comboboxes.at(i);
+    for (int i = 0; i < ctrlBoxes.size(); i++)
+        delete ctrlBoxes.at(i);
+    for (int i = 0; i < altBoxes.size(); i++)
+        delete altBoxes.at(i);
+    delete button;
+    delete contentLayout;
+    delete contentWidget;
+    delete scrollArea;
+    delete mainLayout;
     delete ui;
 }
 
@@ -77,7 +95,6 @@ void ShortcutWidget::okButtonPressed()
     }
 
     hotkeys.clear();
-
 
 
     for (int i = 0; i < 100; i++) {

@@ -8,6 +8,12 @@
 
 #include "hotKey.h"
 
+#include <QScrollArea>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QPushButton>
+
 namespace Ui {
 class ShortcutWidget;
 }
@@ -28,6 +34,14 @@ private slots:
 
 private:
     Ui::ShortcutWidget *ui;
+
+    QScrollArea* scrollArea;
+    QWidget* contentWidget;
+    QVBoxLayout* contentLayout;
+    QVector<QHBoxLayout*>innerLayouts;
+    QVector<QLabel*>labels;
+    QPushButton *button;
+    QVBoxLayout* mainLayout;
 
     QVector<QLineEdit*>lineEdits;
     QVector<MyCombobox*>comboboxes;

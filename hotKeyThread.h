@@ -8,7 +8,7 @@ class HotKeyThread : public QThread
 {
     Q_OBJECT
 public:
-    HotKeyThread(QVector<HotKey> keys);
+    HotKeyThread();
     ~HotKeyThread();
     void setStopped(bool stopped);
     void setKeys(QVector<HotKey> keys);

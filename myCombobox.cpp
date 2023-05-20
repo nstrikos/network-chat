@@ -2,6 +2,7 @@
 
 MyCombobox::MyCombobox()
 {
+    this->setPlaceholderText(tr("Choose key"));
     this->addItem("A");
     this->addItem("B");
     this->addItem("C");

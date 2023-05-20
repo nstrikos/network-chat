@@ -9,9 +9,7 @@ HEADERS       = chatdialog.h \
                 mythread.h \
                 peermanager.h \
                 server.h \
-                shortcutDialog.h \
                 shortcutWidget.h \
-                shortcutWindow.h \
                 tripserver.h
 SOURCES       = chatdialog.cpp \
                 client.cpp \
@@ -25,15 +23,11 @@ SOURCES       = chatdialog.cpp \
                 mythread.cpp \
                 peermanager.cpp \
                 server.cpp \
-                shortcutDialog.cpp \
                 shortcutWidget.cpp \
-                shortcutWindow.cpp \
                 tripserver.cpp
 FORMS         = chatdialog.ui \
     mainwindow.ui \
-    shortcutDialog.ui \
-    shortcutWidget.ui \
-    shortcutWindow.ui
+    shortcutWidget.ui
 QT           += network widgets
 requires(qtConfig(udpsocket))
 requires(qtConfig(listwidget))
