@@ -24,6 +24,7 @@ class ShortcutWidget : public QWidget
 
 public:
     explicit ShortcutWidget(QWidget *parent = nullptr);
+    void setKeys(QVector<HotKey>*hotkeys);
     ~ShortcutWidget();
 
 signals:

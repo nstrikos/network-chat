@@ -38,7 +38,6 @@ HotKeyThread::~HotKeyThread()
         XUngrabKey(dpy, hotKeys.at(i).keycode, hotKeys.at(i).modifiers | Mod2Mask, grab_window);
         XUngrabKey(dpy, hotKeys.at(i).keycode, hotKeys.at(i).modifiers | LockMask | Mod2Mask, grab_window);
     }
-    qDebug() << "Got here!";
 }
 
 void HotKeyThread::run()
@@ -81,17 +80,19 @@ void HotKeyThread::run()
             {
             case KeyPress:
                 XLookupString(&ev.xkey,text,255,&key,0);
-                qDebug() << key << XK_V;
+                qDebug() << ev.xkey.keycode << ev.xkey.state;
 
                 for (int i = 0; i < hotKeys.size(); i++) {
-                    if (key == hotKeys.at(i).keychar) {
+                    if ( (key == hotKeys.at(i).keychar || key == hotKeys.at(i).keychar2) &&
+                        ev.xkey.state & hotKeys.at(i).modifiers) {
                         //hotKeys.at(i).speakPhrase();
                         emit sendText(hotKeys.at(i).phrase);
                         qDebug() << hotKeys.at(i).keychar << " pressed";
-                    } else if ( key == hotKeys.at(i).keychar2) {
+                    } /*else if ( key == hotKeys.at(i).keychar2 &&
+                               ev.xkey.state == hotKeys.at(i).modifiers) {
                         emit sendText(hotKeys.at(i).phrase);
                         qDebug() << hotKeys.at(i).keychar2 << " pressed";
-                    }
+                    }*/
                 }
             }
         }

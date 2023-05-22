@@ -67,6 +67,16 @@ private:
     void createMenu();
 
     bool closeOnTrayIcon;
+
+    QStringList phrases;
+    QStringList codes;
+    QStringList ctrls;
+    QStringList alts;
+
+    void readSettings();
+    void writeSettings();
+
+    QVector<HotKey>hotKeys;
 };
 
 #endif // MAINWINDOW_H

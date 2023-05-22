@@ -3,6 +3,7 @@
 
 #include <QKeyEvent>
 #include <QMessageBox>
+#include <QSettings>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -36,13 +37,27 @@ MainWindow::MainWindow(QWidget *parent) :
     hotKeyThread = new HotKeyThread();
     connect(hotKeyThread, &HotKeyThread::sendText, this, &MainWindow::receiveShortCut);
 
-    hotKeyThread->start();
+    //hotKeyThread->start();
 
-    shortcutWindow = nullptr;
+
+    Qt::WindowFlags flags;
+    flags = Qt::Dialog;
+    flags |= Qt::WindowTitleHint;
+    flags |= Qt::WindowCloseButtonHint;
+    flags |= Qt::CustomizeWindowHint;
+    shortcutWindow = new ShortcutWidget();
+    shortcutWindow->setWindowFlags(flags);
+    connect(shortcutWindow, &ShortcutWidget::updateKeys, this, &MainWindow::updateKeys);
+
 
     createMenu();
 
+
+    readSettings();
+    shortcutWindow->setKeys(&hotKeys);
+
     closeOnTrayIcon = false;
+
 }
 
 void MainWindow::shortcutActivated(QString text)
@@ -53,6 +68,8 @@ void MainWindow::shortcutActivated(QString text)
 
 MainWindow::~MainWindow()
 {
+    writeSettings();
+
     if (shortcutWindow != nullptr)
         delete shortcutWindow;
 
@@ -146,16 +163,7 @@ void MainWindow::showWindow()
 
 void MainWindow::showShortcutDialog()
 {
-    if (shortcutWindow == nullptr) {
-        Qt::WindowFlags flags;
-        flags = Qt::Dialog;
-        flags |= Qt::WindowTitleHint;
-        flags |= Qt::WindowCloseButtonHint;
-        flags |= Qt::CustomizeWindowHint;
-        shortcutWindow = new ShortcutWidget();
-        shortcutWindow->setWindowFlags(flags);
-        connect(shortcutWindow, &ShortcutWidget::updateKeys, this, &MainWindow::updateKeys);
-    }
+
 
     shortcutWindow->show();
 }
@@ -168,7 +176,7 @@ void MainWindow::updateKeys(QVector<HotKey *>hotkeys)
 
 
     HotKey tempKey;
-    QVector<HotKey>hotKeys;
+    hotKeys.clear();
 
     for (int i = 0; i < hotkeys.size(); i++) {
         tempKey.setCode(hotkeys.at(i)->code);
@@ -214,6 +222,73 @@ void MainWindow::createMenu()
 
     fileMenu = menuBar()->addMenu(tr("Shortcuts"));
     fileMenu->addAction(showShortcutAction);
+}
+
+void MainWindow::readSettings()
+{
+    hotKeys.clear();
+    QSettings settings("omilo-android", "omilo-android");
+    phrases = settings.value("phrases").toStringList();
+    codes = settings.value("codes").toStringList();
+    ctrls = settings.value("ctrls").toStringList();
+    alts = settings.value("alts").toStringList();
+
+    HotKey tempKey;
+
+    int size = phrases.size();
+
+    if ( phrases.size() != codes.size())
+        return;
+
+    for (int i = 0; i < size; i++) {
+        tempKey.phrase = phrases.at(i);
+        tempKey.setCode(codes.at(i));
+        if (ctrls.at(i) == "true")
+            tempKey.setCtrl(true);
+        else
+            tempKey.setCtrl(false);
+        if (alts.at(i) == "true")
+            tempKey.setAlt(true);
+        else
+            tempKey.setAlt(false);
+        hotKeys.append(tempKey);
+    }
+
+
+    if (hotKeyThread != nullptr) {
+        hotKeyThread->setStopped(true);
+    }
+
+    hotKeyThread->setKeys(hotKeys);
+    hotKeyThread->start();
+}
+
+void MainWindow::writeSettings()
+{
+    phrases.clear();
+    codes.clear();
+    ctrls.clear();
+    alts.clear();
+
+    for (int i = 0; i < hotKeys.size(); i++) {
+        phrases.append(hotKeys.at(i).phrase);
+        codes.append(hotKeys.at(i).code);
+        if (hotKeys.at(i).ctrl == 0)
+            ctrls.append("false");
+        else
+            ctrls.append("true");
+        if (hotKeys.at(i).alt == 0)
+            alts.append("false");
+        else
+            alts.append("true");
+    }
+
+    QSettings settings("omilo-android", "omilo-android");
+
+    settings.setValue("phrases", phrases);
+    settings.setValue("codes", codes);
+    settings.setValue("ctrls", ctrls);
+    settings.setValue("alts", alts);
 }
 
 void MainWindow::activate()

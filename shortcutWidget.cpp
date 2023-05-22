@@ -60,6 +60,22 @@ ShortcutWidget::ShortcutWidget(QWidget *parent) :
     mainLayout->addWidget(button);
 }
 
+void ShortcutWidget::setKeys(QVector<HotKey> *hotkeys)
+{
+    for (int i = 0; i< hotkeys->size(); i++) {
+        lineEdits.at(i)->setText(hotkeys->at(i).phrase);
+        comboboxes.at(i)->setCurrentText(hotkeys->at(i).code);
+        if (hotkeys->at(i).ctrl != 0)
+            ctrlBoxes.at(i)->setChecked(true);
+        else
+            ctrlBoxes.at(i)->setChecked(false);
+        if (hotkeys->at(i).alt != 0)
+            altBoxes.at(i)->setChecked(true);
+        else
+            altBoxes.at(i)->setChecked(false);
+    }
+}
+
 ShortcutWidget::~ShortcutWidget()
 {
     for (int i = 0; i < hotkeys.size(); i++) {
