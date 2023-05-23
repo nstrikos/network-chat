@@ -41,9 +41,10 @@ private slots:
     void clearButtonClicked();
     void textEditChanged();
     void showWindow();
+    void listWidgetClicked();
 
     void showShortcutDialog();
-    void updateKeys(QVector<HotKey*>hotkeys);
+    void updateKeys(QVector<HotKey*>hotkeys);    
 
 private:
     Ui::MainWindow *ui;

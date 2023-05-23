@@ -4,6 +4,7 @@
 #include <QKeyEvent>
 #include <QMessageBox>
 #include <QSettings>
+#include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -37,6 +38,8 @@ MainWindow::MainWindow(QWidget *parent) :
     hotKeyThread = new HotKeyThread();
     connect(hotKeyThread, &HotKeyThread::sendText, this, &MainWindow::receiveShortCut);
 
+    connect(ui->listWidget, &QListWidget::itemDoubleClicked, this, &MainWindow::listWidgetClicked);
+
     //hotKeyThread->start();
 
 
@@ -57,6 +60,13 @@ MainWindow::MainWindow(QWidget *parent) :
     shortcutWindow->setKeys(&hotKeys);
 
     closeOnTrayIcon = false;
+
+    int size1 = 1010;
+    int size2 = 334;
+
+    QList<int> sizes;
+    sizes << size1 << size2; // Set the desired sizes in pixels
+    ui->splitter_2->setSizes(sizes);
 
 }
 
@@ -161,10 +171,17 @@ void MainWindow::showWindow()
     this->show();    
 }
 
+void MainWindow::listWidgetClicked()
+{
+    if (!connected)
+        return;
+
+    QString text = ui->listWidget->currentItem()->text();
+    ui->textEdit->setText(text);
+    activate();}
+
 void MainWindow::showShortcutDialog()
 {
-
-
     shortcutWindow->show();
 }
 
@@ -173,6 +190,8 @@ void MainWindow::updateKeys(QVector<HotKey *>hotkeys)
     if (hotKeyThread != nullptr) {
         hotKeyThread->setStopped(true);
     }
+
+    ui->listWidget->clear();
 
 
     HotKey tempKey;
@@ -184,6 +203,7 @@ void MainWindow::updateKeys(QVector<HotKey *>hotkeys)
         tempKey.setAlt(hotkeys.at(i)->alt);
         tempKey.phrase = hotkeys.at(i)->phrase;
         hotKeys.append(tempKey);
+        ui->listWidget->addItem(tempKey.phrase);
     }
 
     hotKeyThread->setKeys(hotKeys);
@@ -233,6 +253,16 @@ void MainWindow::readSettings()
     ctrls = settings.value("ctrls").toStringList();
     alts = settings.value("alts").toStringList();
 
+    int width = settings.value("width", 800).toInt();
+    int height = settings.value("height", 600).toInt();
+    int size1 = settings.value("splitter-size1").toInt();
+    int size2 = settings.value("spliiter-size2").toInt();
+
+    this->resize(width, height);
+    QList<int> sizes;
+    sizes << size1 << size2;
+    ui->splitter_2->setSizes(sizes);
+
     HotKey tempKey;
 
     int size = phrases.size();
@@ -261,6 +291,9 @@ void MainWindow::readSettings()
 
     hotKeyThread->setKeys(hotKeys);
     hotKeyThread->start();
+
+
+    ui->listWidget->addItems(phrases);
 }
 
 void MainWindow::writeSettings()
@@ -289,6 +322,13 @@ void MainWindow::writeSettings()
     settings.setValue("codes", codes);
     settings.setValue("ctrls", ctrls);
     settings.setValue("alts", alts);
+    settings.setValue("width", this->width());
+    settings.setValue("height", this->height());
+    settings.setValue("splitter-size1", ui->listWidget->size().width());
+    settings.setValue("splitter-size2", ui->splitter->size().height());
+
+    qDebug() << ui->listWidget->size().width();
+    qDebug() << ui->splitter->size().height();
 }
 
 void MainWindow::activate()
