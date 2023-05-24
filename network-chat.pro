@@ -6,6 +6,7 @@ HEADERS       = chatdialog.h \
                 hotKeyThread.h \
                 mainwindow.h \
                 myCombobox.h \
+                myPushbutton.h \
                 mythread.h \
                 peermanager.h \
                 server.h \
@@ -20,6 +21,7 @@ SOURCES       = chatdialog.cpp \
                 main.cpp \
                 mainwindow.cpp \
                 myCombobox.cpp \
+                myPushbutton.cpp \
                 mythread.cpp \
                 peermanager.cpp \
                 server.cpp \

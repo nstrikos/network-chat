@@ -19,7 +19,7 @@ ShortcutWidget::ShortcutWidget(QWidget *parent) :
     contentLayout = new QVBoxLayout(contentWidget);
 
     // Create and add labels dynamically
-    for (int i = 1; i <= 100; ++i)
+    for (int i = 0; i < 100; i++)
     {
         QHBoxLayout* innerLayout = new QHBoxLayout;
         innerLayouts.append(innerLayout);
@@ -43,6 +43,13 @@ ShortcutWidget::ShortcutWidget(QWidget *parent) :
         QCheckBox *checkbox2 = new QCheckBox("Alt");
         innerLayout->addWidget(checkbox2);
         altBoxes.append(checkbox2);
+
+        MyPushButton *clearButton = new MyPushButton();
+        clearButton->setCount(i);
+        innerLayout->addWidget(clearButton);
+        clearButtons.append(clearButton);
+        connect(clearButton, &MyPushButton::clicked, clearButton, &MyPushButton::buttonClicked);
+        connect(clearButton, &MyPushButton::updateCount, this, &ShortcutWidget::clearButtonPressed);
 
         contentLayout->addLayout(innerLayout);
     }
@@ -94,6 +101,8 @@ ShortcutWidget::~ShortcutWidget()
         delete ctrlBoxes.at(i);
     for (int i = 0; i < altBoxes.size(); i++)
         delete altBoxes.at(i);
+    for (int i = 0; i < clearButtons.size(); i++)
+        delete clearButtons.at(i);
     delete button;
     delete contentLayout;
     delete contentWidget;
@@ -126,4 +135,10 @@ void ShortcutWidget::okButtonPressed()
     }
 
     emit updateKeys(hotkeys);
+}
+
+void ShortcutWidget::clearButtonPressed(int i)
+{
+    QLineEdit *lineEdit = lineEdits.at(i);
+    lineEdit->clear();
 }

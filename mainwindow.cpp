@@ -60,14 +60,6 @@ MainWindow::MainWindow(QWidget *parent) :
     shortcutWindow->setKeys(&hotKeys);
 
     closeOnTrayIcon = false;
-
-    int size1 = 1010;
-    int size2 = 334;
-
-    QList<int> sizes;
-    sizes << size1 << size2; // Set the desired sizes in pixels
-    ui->splitter_2->setSizes(sizes);
-
 }
 
 void MainWindow::shortcutActivated(QString text)
@@ -253,15 +245,25 @@ void MainWindow::readSettings()
     ctrls = settings.value("ctrls").toStringList();
     alts = settings.value("alts").toStringList();
 
+    int x = settings.value("x", 0).toInt();
+    int y = settings.value("y", 0).toInt();
     int width = settings.value("width", 800).toInt();
     int height = settings.value("height", 600).toInt();
-    int size1 = settings.value("splitter-size1").toInt();
-    int size2 = settings.value("spliiter-size2").toInt();
+    int size1_1 = settings.value("splitter1-size1", 500).toInt();
+    int size1_2 = settings.value("splitter1-size2", 100).toInt();
+    int size2_1 = settings.value("splitter2-size1", 100).toInt();
+    int size2_2 = settings.value("splitter2-size2", 700).toInt();
 
-    this->resize(width, height);
+
+    this->setGeometry(x, y, width, height);
+
     QList<int> sizes;
-    sizes << size1 << size2;
-    ui->splitter_2->setSizes(sizes);
+    sizes << size1_1 << size1_2;
+    ui->splitter->setSizes(sizes);
+
+    QList<int> sizes2;
+    sizes2 << size2_1 << size2_2;
+    ui->splitter_2->setSizes(sizes2);
 
     HotKey tempKey;
 
@@ -324,11 +326,12 @@ void MainWindow::writeSettings()
     settings.setValue("alts", alts);
     settings.setValue("width", this->width());
     settings.setValue("height", this->height());
-    settings.setValue("splitter-size1", ui->listWidget->size().width());
-    settings.setValue("splitter-size2", ui->splitter->size().height());
-
-    qDebug() << ui->listWidget->size().width();
-    qDebug() << ui->splitter->size().height();
+    settings.setValue("x", this->x());
+    settings.setValue("y", this->y());
+    settings.setValue("splitter1-size1", ui->splitter->sizes().at(0));
+    settings.setValue("splitter1-size2", ui->splitter->sizes().at(1));
+    settings.setValue("splitter2-size1", ui->splitter_2->sizes().at(0));
+    settings.setValue("splitter2-size2", ui->splitter_2->sizes().at(1));
 }
 
 void MainWindow::activate()

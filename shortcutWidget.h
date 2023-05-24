@@ -13,6 +13,7 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QPushButton>
+#include "myPushbutton.h"
 
 namespace Ui {
 class ShortcutWidget;
@@ -32,6 +33,7 @@ signals:
 
 private slots:
     void okButtonPressed();
+    void clearButtonPressed(int i);
 
 private:
     Ui::ShortcutWidget *ui;
@@ -48,6 +50,7 @@ private:
     QVector<MyCombobox*>comboboxes;
     QVector<QCheckBox*>ctrlBoxes;
     QVector<QCheckBox*>altBoxes;
+    QVector<MyPushButton*>clearButtons;
     QVector<HotKey*>hotkeys;
 };
 
