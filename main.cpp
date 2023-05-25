@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
     //dialog.show();
 
     MainWindow mainWindow;
-    mainWindow.show();
+    mainWindow.init();
 
     Client client;
 

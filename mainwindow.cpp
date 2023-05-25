@@ -59,7 +59,18 @@ MainWindow::MainWindow(QWidget *parent) :
     readSettings();
     shortcutWindow->setKeys(&hotKeys);
 
-    closeOnTrayIcon = false;
+    optionsDialog = nullptr;
+}
+
+void MainWindow::init()
+{
+    if (!m_startMinimized) {
+        show();
+    }
+    else {
+        //showMinimized();
+        hide();
+    }
 }
 
 void MainWindow::shortcutActivated(QString text)
@@ -75,6 +86,10 @@ MainWindow::~MainWindow()
     if (shortcutWindow != nullptr)
         delete shortcutWindow;
 
+    if (optionsDialog != nullptr)
+        delete optionsDialog;
+
+    delete optionsDialogAction;
     delete showShortcutAction;
 
     hotKeyThread->terminate();
@@ -89,7 +104,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    if (closeOnTrayIcon) {
+    if (m_closeOnSystemTray) {
         if (!event->spontaneous() || !isVisible())
             return;
         if (trayIcon->isVisible()) {
@@ -177,6 +192,20 @@ void MainWindow::showShortcutDialog()
     shortcutWindow->show();
 }
 
+void MainWindow::showOptionsDialog()
+{
+    if (optionsDialog == nullptr)
+        optionsDialog = new OptionsDialog(this);
+
+    optionsDialog->setCloseOnSystemTray(m_closeOnSystemTray);
+    optionsDialog->setStartMinimized(m_startMinimized);
+
+    if (optionsDialog->exec()) {
+        m_closeOnSystemTray = optionsDialog->closeOnSystemTray();
+        m_startMinimized = optionsDialog->startMinimized();
+    }
+}
+
 void MainWindow::updateKeys(QVector<HotKey *>hotkeys)
 {
     if (hotKeyThread != nullptr) {
@@ -228,12 +257,15 @@ void MainWindow::disableControls()
 void MainWindow::createMenu()
 {
     showShortcutAction = new QAction(tr("Edit shortcuts..."), this);
+    optionsDialogAction = new QAction(tr("Application options..."), this);
 
 
     connect(showShortcutAction, &QAction::triggered, this, &MainWindow::showShortcutDialog);
+    connect(optionsDialogAction, &QAction::triggered, this, &MainWindow::showOptionsDialog);
 
-    fileMenu = menuBar()->addMenu(tr("Shortcuts"));
+    fileMenu = menuBar()->addMenu(tr("Options"));
     fileMenu->addAction(showShortcutAction);
+    fileMenu->addAction(optionsDialogAction);
 }
 
 void MainWindow::readSettings()
@@ -244,6 +276,8 @@ void MainWindow::readSettings()
     codes = settings.value("codes").toStringList();
     ctrls = settings.value("ctrls").toStringList();
     alts = settings.value("alts").toStringList();
+    m_closeOnSystemTray = settings.value("systemTray", false).toBool();
+    m_startMinimized = settings.value("minimized", false).toBool();
 
     int x = settings.value("x", 0).toInt();
     int y = settings.value("y", 0).toInt();
@@ -332,6 +366,8 @@ void MainWindow::writeSettings()
     settings.setValue("splitter1-size2", ui->splitter->sizes().at(1));
     settings.setValue("splitter2-size1", ui->splitter_2->sizes().at(0));
     settings.setValue("splitter2-size2", ui->splitter_2->sizes().at(1));
+    settings.setValue("systemTray", m_closeOnSystemTray);
+    settings.setValue("minimized", m_startMinimized);
 }
 
 void MainWindow::activate()

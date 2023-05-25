@@ -7,6 +7,7 @@
 #include <QMenu>
 #include "hotKeyThread.h"
 #include "shortcutWidget.h"
+#include "optionsDialog.h"
 
 namespace Ui {
 class MainWindow;
@@ -18,6 +19,7 @@ class MainWindow : public QMainWindow
 
 public:
     explicit MainWindow(QWidget *parent = nullptr);
+    void init();
     void shortcutActivated(QString text);
     ~MainWindow();
 
@@ -44,6 +46,7 @@ private slots:
     void listWidgetClicked();
 
     void showShortcutDialog();
+    void showOptionsDialog();
     void updateKeys(QVector<HotKey*>hotkeys);    
 
 private:
@@ -64,10 +67,9 @@ private:
     QMenu* fileMenu;
 
     QAction* showShortcutAction;
+    QAction* optionsDialogAction;
 
     void createMenu();
-
-    bool closeOnTrayIcon;
 
     QStringList phrases;
     QStringList codes;
@@ -78,6 +80,11 @@ private:
     void writeSettings();
 
     QVector<HotKey>hotKeys;
+
+    OptionsDialog *optionsDialog;
+
+    bool m_closeOnSystemTray;
+    bool m_startMinimized;
 };
 
 #endif // MAINWINDOW_H
