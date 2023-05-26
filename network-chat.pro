@@ -42,5 +42,8 @@ target.path = $$[QT_INSTALL_EXAMPLES]/network/network-chat
 INSTALLS += target
 LIBS += -lX11
 
+RESOURCES += \
+    resources.qrc
+
 
 

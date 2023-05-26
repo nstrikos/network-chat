@@ -24,7 +24,7 @@ ShortcutWidget::ShortcutWidget(QWidget *parent) :
         QHBoxLayout* innerLayout = new QHBoxLayout;
         innerLayouts.append(innerLayout);
 
-        QLabel* label = new QLabel(QString("Phrase %1").arg(i));
+        QLabel* label = new QLabel(QString("Phrase %1").arg(i+1));
         labels.append(label);
         innerLayout->addWidget(label);
 

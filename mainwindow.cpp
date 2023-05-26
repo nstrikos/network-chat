@@ -24,6 +24,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->clearButton, &QPushButton::clicked, this, &MainWindow::clearButtonClicked);
 
     trayIcon = new QSystemTrayIcon(this);
+    QIcon icon = QIcon(":/resources/audio.png");
+    trayIcon->setIcon(icon);
     trayIcon->show();
 
     connect(trayIcon, &QSystemTrayIcon::activated, this, &MainWindow::showWindow);
